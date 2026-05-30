@@ -87,6 +87,30 @@ else
     fi
 fi
 
+# ── bash statusline prompt integration ───────────────────────────────────────
+section "Bash statusline"
+
+BASHRC_D="$HOME/.bashrc.d"
+PROMPT_SOURCE="$CLAUDE_CONFIG_DIR/statusline/prompt.bash"
+PROMPT_LINK="$BASHRC_D/claude-statusline.bash"
+
+if [ ! -d "$BASHRC_D" ]; then
+    mkdir -p "$BASHRC_D"
+    info "Created $BASHRC_D"
+fi
+
+if true; then
+    if [ -L "$PROMPT_LINK" ]; then
+        warn "claude-statusline.bash symlink already exists — relinking."
+        rm "$PROMPT_LINK"
+    elif [ -f "$PROMPT_LINK" ]; then
+        warn "claude-statusline.bash already exists as a file — backing up."
+        mv "$PROMPT_LINK" "${PROMPT_LINK}.backup.$(date +%s)"
+    fi
+    ln -s "$PROMPT_SOURCE" "$PROMPT_LINK"
+    info "Linked $PROMPT_LINK -> $PROMPT_SOURCE"
+fi
+
 # ── manual steps ──────────────────────────────────────────────────────────────
 section "Manual steps required inside Claude Code"
 

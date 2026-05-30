@@ -1,4 +1,20 @@
 {
+  "permissions": {
+    "allow": [
+      "Bash(gh --version)",
+      "Bash(gh auth *)",
+      "Bash(git fetch *)",
+      "Bash(git ls-remote *)",
+      "Bash(sed 's#refs/heads/##')",
+      "Bash(gh run *)",
+      "Bash(echo \"EXIT=$?\")",
+      "Bash(git ls-tree *)",
+      "Bash(gh api *)",
+      "Bash(python3 -m json.tool)",
+      "Bash(curl -s https://api.github.com/repos/quarto-dev/quarto-cli/releases/latest)",
+      "Bash(quarto render *)"
+    ]
+  },
   "enabledPlugins": {
     "andrej-karpathy-skills@karpathy-skills": true,
     "skill-creator@claude-plugins-official": true,
@@ -11,5 +27,24 @@
         "repo": "forrestchang/andrej-karpathy-skills"
       }
     }
+  },
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": ".*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "mkdir -p ${XDG_CACHE_HOME:-$HOME/.cache}/claude-code && printf working > ${XDG_CACHE_HOME:-$HOME/.cache}/claude-code/status"
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "type": "command",
+        "command": "mkdir -p ${XDG_CACHE_HOME:-$HOME/.cache}/claude-code && printf idle > ${XDG_CACHE_HOME:-$HOME/.cache}/claude-code/status"
+      }
+    ]
   }
 }
