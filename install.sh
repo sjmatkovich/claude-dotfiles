@@ -3,6 +3,7 @@ set -euo pipefail
 
 CLAUDE_DIR="$HOME/.claude"
 REPO_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+CLAUDE_CONFIG_DIR="$REPO_DIR/claude"
 
 RED='\033[0;31m'
 GREEN='\033[0;32m'
@@ -28,40 +29,43 @@ fi
 
 info "Found ~/.claude/ — proceeding."
 
-# ── install settings.json ─────────────────────────────────────────────────────
-section "Installing settings.json"
+# ── symlink settings.json ─────────────────────────────────────────────────────
+section "Symlinking settings.json"
 
 TARGET="$CLAUDE_DIR/settings.json"
-SOURCE="$REPO_DIR/settings.json"
+SOURCE="$CLAUDE_CONFIG_DIR/settings.json"
 
-if [ -f "$TARGET" ]; then
+if [ -L "$TARGET" ]; then
+    warn "settings.json is already a symlink — relinking."
+    rm "$TARGET"
+elif [ -f "$TARGET" ]; then
     BACKUP="${TARGET}.backup.$(date +%s)"
     warn "Existing settings.json found. Backing up to: $BACKUP"
-    cp "$TARGET" "$BACKUP"
+    mv "$TARGET" "$BACKUP"
 fi
 
-cp "$SOURCE" "$TARGET"
-info "Copied settings.json to $TARGET"
+ln -s "$SOURCE" "$TARGET"
+info "Linked $TARGET -> $SOURCE"
 
-# ── optionally install settings.local.json ────────────────────────────────────
+# ── settings.local.json (machine-specific) ────────────────────────────────────
 section "settings.local.json (machine-specific permissions)"
 
 LOCAL_TARGET="$CLAUDE_DIR/settings.local.json"
-LOCAL_SOURCE="$REPO_DIR/settings.local.json.example"
+LOCAL_EXAMPLE="$CLAUDE_CONFIG_DIR/settings.local.json.example"
 
-if [ -f "$LOCAL_TARGET" ]; then
+if [ -f "$LOCAL_TARGET" ] || [ -L "$LOCAL_TARGET" ]; then
     warn "settings.local.json already exists — skipping (keeping your existing one)."
-    warn "Reference template: $LOCAL_SOURCE"
+    warn "Reference template: $LOCAL_EXAMPLE"
 else
     printf "\n%s" "No settings.local.json found. Copy the example template? [y/N] "
     read -r REPLY
     if [[ "$REPLY" =~ ^[Yy]$ ]]; then
-        cp "$LOCAL_SOURCE" "$LOCAL_TARGET"
+        cp "$LOCAL_EXAMPLE" "$LOCAL_TARGET"
         info "Copied settings.local.json.example to $LOCAL_TARGET"
         info "Edit $LOCAL_TARGET to add your machine-specific Bash allowlists."
     else
         info "Skipped. You can copy it manually later:"
-        info "  cp \"$LOCAL_SOURCE\" \"$LOCAL_TARGET\""
+        info "  cp \"$LOCAL_EXAMPLE\" \"$LOCAL_TARGET\""
     fi
 fi
 
@@ -89,4 +93,4 @@ printf "    /plugins install andrej-karpathy-skills@karpathy-skills\n"
 printf "\n"
 
 section "Done"
-info "settings.json is in place. Complete the manual steps above and you're set."
+info "settings.json is symlinked from the repo. Complete the manual steps above and you're set."
