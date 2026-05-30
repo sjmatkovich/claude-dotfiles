@@ -47,6 +47,24 @@ fi
 ln -s "$SOURCE" "$TARGET"
 info "Linked $TARGET -> $SOURCE"
 
+# ── symlink CLAUDE.md ─────────────────────────────────────────────────────────
+section "Symlinking CLAUDE.md"
+
+CM_TARGET="$CLAUDE_DIR/CLAUDE.md"
+CM_SOURCE="$CLAUDE_CONFIG_DIR/CLAUDE.md"
+
+if [ -L "$CM_TARGET" ]; then
+    warn "CLAUDE.md is already a symlink — relinking."
+    rm "$CM_TARGET"
+elif [ -f "$CM_TARGET" ]; then
+    CM_BACKUP="${CM_TARGET}.backup.$(date +%s)"
+    warn "Existing CLAUDE.md found. Backing up to: $CM_BACKUP"
+    mv "$CM_TARGET" "$CM_BACKUP"
+fi
+
+ln -s "$CM_SOURCE" "$CM_TARGET"
+info "Linked $CM_TARGET -> $CM_SOURCE"
+
 # ── settings.local.json (machine-specific) ────────────────────────────────────
 section "settings.local.json (machine-specific permissions)"
 

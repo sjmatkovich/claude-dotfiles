@@ -6,6 +6,7 @@ Dotfiles for [Claude Code](https://claude.ai/code) — restore your global plugi
 
 | File | Purpose |
 |------|---------|
+| `claude/CLAUDE.md` | Global behavioral instructions for Claude (applies to all sessions) |
 | `settings.json` | Global Claude Code settings: enabled plugins |
 | `settings.local.json.example` | Template for machine-specific permission allowlists |
 | `install.sh` | Automated setup script |
@@ -87,7 +88,8 @@ chmod +x install.sh
 The script:
 - Checks that `~/.claude/` exists
 - Backs up any existing `settings.json` before overwriting
-- Copies `settings.json` to `~/.claude/settings.json`
+- Symlinks `settings.json` to `~/.claude/settings.json`
+- Symlinks `CLAUDE.md` to `~/.claude/CLAUDE.md`
 - Optionally copies `settings.local.json.example` as a starting point for `~/.claude/settings.local.json`
 
 ### Step 2: Register the karpathy-skills marketplace (in Claude Code)
@@ -157,7 +159,8 @@ The script will back up your existing `settings.json` before overwriting.
 These things are managed separately and are not restored by this repo:
 
 - **Credentials** — Re-authenticate with `claude login` on the new machine
-- **Per-project CLAUDE.md** — Lives in each project repo
+- **Global CLAUDE.md** — Managed by this repo at `claude/CLAUDE.md`, symlinked to `~/.claude/CLAUDE.md`
+- **Per-project CLAUDE.md** — Lives in each project's own `.claude/CLAUDE.md`
 - **MCP servers** — Configured per-project in `.claude/settings.json` inside each repo
 - **Keybindings** — If you customize `~/.claude/keybindings.json`, add it to this repo manually (it contains no secrets)
 - **Hooks** — If you configure global hooks in `~/.claude/settings.json`, they will be included automatically once you add them there
