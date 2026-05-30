@@ -42,8 +42,13 @@
     ],
     "Stop": [
       {
-        "type": "command",
-        "command": "mkdir -p ${XDG_CACHE_HOME:-$HOME/.cache}/claude-code && printf idle > ${XDG_CACHE_HOME:-$HOME/.cache}/claude-code/status"
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "mkdir -p ${XDG_CACHE_HOME:-$HOME/.cache}/claude-code && printf idle > ${XDG_CACHE_HOME:-$HOME/.cache}/claude-code/status"
+          }
+        ]
       }
     ]
   }
