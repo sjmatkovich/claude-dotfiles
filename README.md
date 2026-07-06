@@ -8,6 +8,7 @@ Dotfiles for [Claude Code](https://claude.ai/code) — restore your global plugi
 |------|---------|
 | `claude/CLAUDE.md` | Global behavioral instructions for Claude (applies to all sessions) |
 | `settings.json` | Global Claude Code settings: enabled plugins |
+| `claude/skills/` | Global skills, symlinked from `~/.claude/skills` — every skill you add there is version-controlled and synced automatically |
 | `settings.local.json.example` | Template for machine-specific permission allowlists |
 | `install.sh` | Automated setup script |
 
@@ -90,6 +91,7 @@ The script:
 - Backs up any existing `settings.json` before overwriting
 - Symlinks `settings.json` to `~/.claude/settings.json`
 - Symlinks `CLAUDE.md` to `~/.claude/CLAUDE.md`
+- Backs up any existing `~/.claude/skills/` directory, then symlinks `claude/skills/` to `~/.claude/skills`
 - Optionally copies `settings.local.json.example` as a starting point for `~/.claude/settings.local.json`
 
 ### Step 2: Register the karpathy-skills marketplace (in Claude Code)
@@ -151,6 +153,45 @@ git pull
 ```
 
 The script will back up your existing `settings.json` before overwriting.
+
+---
+
+## Keeping this repo synced with GitHub
+
+The `sync-dotfiles` skill (`claude/skills/sync-dotfiles/`) keeps this repo in sync with its GitHub origin: it commits any uncommitted local changes, then pushes, pulls, or rebase-and-pushes as needed to reconcile with `origin`, with no permission prompts for the git operations involved. Invoke it from within Claude Code with:
+
+```
+/sync-dotfiles
+```
+
+The only case that needs a human is a genuine rebase conflict — the skill aborts the rebase cleanly and reports which files/commits conflicted rather than guessing at a resolution.
+
+### Scheduling an unattended daily sync (WSL2 + Windows Task Scheduler)
+
+On Windows/WSL2, there's no reliable way to run a cron job from *inside* WSL2 alone, since the WSL2 VM shuts down when idle. Instead, use Windows Task Scheduler to start WSL2 and run the sync directly — this both wakes the VM (if needed) and executes the job in one step.
+
+**Prerequisite:** the git commands `/sync-dotfiles` runs (`fetch`, `status`, `add`, `commit`, `push`, `pull`, `rebase`) must be pre-approved in `~/.claude/settings.json`, since a headless run has no TTY to answer a permission prompt. This repo's `settings.json` already includes:
+
+```json
+"Bash(git -C ~/github/claude-dotfiles *)"
+```
+
+**Set up the scheduled task** — run this from PowerShell or `cmd.exe` on Windows (not from inside WSL), adjusting the distro name (`-d Fedora`) and username (`-u sjm`) to match your setup:
+
+```
+schtasks /Create /TN "WSL Sync Dotfiles" /TR "wsl.exe -d Fedora -u sjm -- bash -lc \"claude -p '/sync-dotfiles' >> ~/.cache/sync-dotfiles-cron.log 2>&1\"" /SC DAILY /ST 08:00 /RL HIGHEST
+```
+
+This creates a task named `WSL Sync Dotfiles` that runs daily at 8:00 AM, launching WSL2 and invoking Claude Code non-interactively to run `/sync-dotfiles`, with output appended to `~/.cache/sync-dotfiles-cron.log` for later review. You'll be prompted for your Windows password so the task can run whether or not you're logged in.
+
+To set it up via the Task Scheduler GUI instead:
+1. **Create Task** (not "Basic Task") → name it, check **"Run whether user is logged on or not"**.
+2. **Triggers** → New → **Daily**, start time **8:00 AM**.
+3. **Actions** → New → Program: `wsl.exe`, Arguments: `-d Fedora -u sjm -- bash -lc "claude -p '/sync-dotfiles' >> ~/.cache/sync-dotfiles-cron.log 2>&1"`.
+4. **Conditions** → uncheck "Start the task only if the computer is on AC power".
+5. **Settings** → check "Run task as soon as possible after a scheduled start is missed".
+
+Check `~/.cache/sync-dotfiles-cron.log` periodically — a `stopped on conflict` entry means a rebase conflict needs manual resolution.
 
 ---
 
