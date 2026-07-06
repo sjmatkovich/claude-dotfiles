@@ -18,6 +18,11 @@ covered by the same fetch/add/commit/push/pull/rebase cycle below. Adding,
 editing, or removing a skill under `~/.claude/skills/` is just editing a file
 in the repo; no extra sync steps are needed beyond the ones already listed.
 
+The repo also holds `claude/statusline/statusline-command.sh`, which
+`~/.claude/statusline-command.sh` is symlinked to — the statusLine script is
+version-controlled the same way, and edits to it are picked up by this same
+cycle with no extra steps.
+
 Run every step with `-C ~/github/claude-dotfiles` (or `cd` there first) so it
 works regardless of the current shell directory.
 

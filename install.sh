@@ -129,6 +129,24 @@ if true; then
     info "Linked $PROMPT_LINK -> $PROMPT_SOURCE"
 fi
 
+# ── statusLine command script ─────────────────────────────────────────────────
+section "Symlinking statusline-command.sh"
+
+SL_TARGET="$CLAUDE_DIR/statusline-command.sh"
+SL_SOURCE="$CLAUDE_CONFIG_DIR/statusline/statusline-command.sh"
+
+if [ -L "$SL_TARGET" ]; then
+    warn "statusline-command.sh is already a symlink — relinking."
+    rm "$SL_TARGET"
+elif [ -f "$SL_TARGET" ]; then
+    SL_BACKUP="${SL_TARGET}.backup.$(date +%s)"
+    warn "Existing statusline-command.sh found. Backing up to: $SL_BACKUP"
+    mv "$SL_TARGET" "$SL_BACKUP"
+fi
+
+ln -s "$SL_SOURCE" "$SL_TARGET"
+info "Linked $SL_TARGET -> $SL_SOURCE"
+
 # ── manual steps ──────────────────────────────────────────────────────────────
 section "Manual steps required inside Claude Code"
 
