@@ -65,6 +65,24 @@ fi
 ln -s "$CM_SOURCE" "$CM_TARGET"
 info "Linked $CM_TARGET -> $CM_SOURCE"
 
+# ── symlink skills/ ───────────────────────────────────────────────────────────
+section "Symlinking skills/"
+
+SKILLS_TARGET="$CLAUDE_DIR/skills"
+SKILLS_SOURCE="$CLAUDE_CONFIG_DIR/skills"
+
+if [ -L "$SKILLS_TARGET" ]; then
+    warn "skills/ is already a symlink — relinking."
+    rm "$SKILLS_TARGET"
+elif [ -d "$SKILLS_TARGET" ]; then
+    SKILLS_BACKUP="${SKILLS_TARGET}.backup.$(date +%s)"
+    warn "Existing skills/ directory found. Backing up to: $SKILLS_BACKUP"
+    mv "$SKILLS_TARGET" "$SKILLS_BACKUP"
+fi
+
+ln -s "$SKILLS_SOURCE" "$SKILLS_TARGET"
+info "Linked $SKILLS_TARGET -> $SKILLS_SOURCE"
+
 # ── settings.local.json (machine-specific) ────────────────────────────────────
 section "settings.local.json (machine-specific permissions)"
 
