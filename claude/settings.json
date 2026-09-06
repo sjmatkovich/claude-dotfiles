@@ -6,6 +6,7 @@
       "Bash(git fetch *)",
       "Bash(git ls-remote *)",
       "Bash(git -C ~/github/claude-dotfiles *)",
+      "Bash(branch=$(git -C ~/github/claude-dotfiles branch --show-current))",
       "Bash(sed 's#refs/heads/##')",
       "Bash(gh run *)",
       "Bash(echo \"EXIT=$?\")",

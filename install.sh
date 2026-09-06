@@ -29,59 +29,44 @@ fi
 
 info "Found ~/.claude/ — proceeding."
 
-# ── symlink settings.json ─────────────────────────────────────────────────────
-section "Symlinking settings.json"
+# ── symlink helper ────────────────────────────────────────────────────────────
+link_item() {
+    local target="$1" source="$2" label="$3"
 
-TARGET="$CLAUDE_DIR/settings.json"
-SOURCE="$CLAUDE_CONFIG_DIR/settings.json"
+    if [ ! -e "$source" ]; then
+        return 0
+    fi
 
-if [ -L "$TARGET" ]; then
-    warn "settings.json is already a symlink — relinking."
-    rm "$TARGET"
-elif [ -f "$TARGET" ]; then
-    BACKUP="${TARGET}.backup.$(date +%s)"
-    warn "Existing settings.json found. Backing up to: $BACKUP"
-    mv "$TARGET" "$BACKUP"
-fi
+    section "Symlinking $label"
 
-ln -s "$SOURCE" "$TARGET"
-info "Linked $TARGET -> $SOURCE"
+    if [ -L "$target" ]; then
+        warn "$label is already a symlink — relinking."
+        rm "$target"
+    elif [ -e "$target" ]; then
+        local backup="${target}.backup.$(date +%s)"
+        warn "Existing $label found. Backing up to: $backup"
+        mv "$target" "$backup"
+    fi
 
-# ── symlink CLAUDE.md ─────────────────────────────────────────────────────────
-section "Symlinking CLAUDE.md"
+    ln -s "$source" "$target"
+    info "Linked $target -> $source"
+}
 
-CM_TARGET="$CLAUDE_DIR/CLAUDE.md"
-CM_SOURCE="$CLAUDE_CONFIG_DIR/CLAUDE.md"
+LINKS=(
+    "settings.json:settings.json"
+    "CLAUDE.md:CLAUDE.md"
+    "skills:skills"
+    "agents:agents"
+    "commands:commands"
+    "keybindings.json:keybindings.json"
+    "statusline-command.sh:statusline/statusline-command.sh"
+)
 
-if [ -L "$CM_TARGET" ]; then
-    warn "CLAUDE.md is already a symlink — relinking."
-    rm "$CM_TARGET"
-elif [ -f "$CM_TARGET" ]; then
-    CM_BACKUP="${CM_TARGET}.backup.$(date +%s)"
-    warn "Existing CLAUDE.md found. Backing up to: $CM_BACKUP"
-    mv "$CM_TARGET" "$CM_BACKUP"
-fi
-
-ln -s "$CM_SOURCE" "$CM_TARGET"
-info "Linked $CM_TARGET -> $CM_SOURCE"
-
-# ── symlink skills/ ───────────────────────────────────────────────────────────
-section "Symlinking skills/"
-
-SKILLS_TARGET="$CLAUDE_DIR/skills"
-SKILLS_SOURCE="$CLAUDE_CONFIG_DIR/skills"
-
-if [ -L "$SKILLS_TARGET" ]; then
-    warn "skills/ is already a symlink — relinking."
-    rm "$SKILLS_TARGET"
-elif [ -d "$SKILLS_TARGET" ]; then
-    SKILLS_BACKUP="${SKILLS_TARGET}.backup.$(date +%s)"
-    warn "Existing skills/ directory found. Backing up to: $SKILLS_BACKUP"
-    mv "$SKILLS_TARGET" "$SKILLS_BACKUP"
-fi
-
-ln -s "$SKILLS_SOURCE" "$SKILLS_TARGET"
-info "Linked $SKILLS_TARGET -> $SKILLS_SOURCE"
+for entry in "${LINKS[@]}"; do
+    name="${entry%%:*}"
+    rel="${entry#*:}"
+    link_item "$CLAUDE_DIR/$name" "$CLAUDE_CONFIG_DIR/$rel" "$name"
+done
 
 # ── settings.local.json (machine-specific) ────────────────────────────────────
 section "settings.local.json (machine-specific permissions)"
@@ -128,24 +113,6 @@ if true; then
     ln -s "$PROMPT_SOURCE" "$PROMPT_LINK"
     info "Linked $PROMPT_LINK -> $PROMPT_SOURCE"
 fi
-
-# ── statusLine command script ─────────────────────────────────────────────────
-section "Symlinking statusline-command.sh"
-
-SL_TARGET="$CLAUDE_DIR/statusline-command.sh"
-SL_SOURCE="$CLAUDE_CONFIG_DIR/statusline/statusline-command.sh"
-
-if [ -L "$SL_TARGET" ]; then
-    warn "statusline-command.sh is already a symlink — relinking."
-    rm "$SL_TARGET"
-elif [ -f "$SL_TARGET" ]; then
-    SL_BACKUP="${SL_TARGET}.backup.$(date +%s)"
-    warn "Existing statusline-command.sh found. Backing up to: $SL_BACKUP"
-    mv "$SL_TARGET" "$SL_BACKUP"
-fi
-
-ln -s "$SL_SOURCE" "$SL_TARGET"
-info "Linked $SL_TARGET -> $SL_SOURCE"
 
 # ── manual steps ──────────────────────────────────────────────────────────────
 section "Manual steps required inside Claude Code"

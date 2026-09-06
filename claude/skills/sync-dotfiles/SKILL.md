@@ -1,6 +1,6 @@
 ---
 name: sync-dotfiles
-description: Sync the local claude-dotfiles git repo (~/github/claude-dotfiles, Fedora WSL2) with its GitHub origin — commit any uncommitted local changes, then push, pull, or rebase-and-push as needed to reconcile with origin, fully autonomously with no permission prompts for the git commands involved. Use this whenever the user asks to sync, push, pull, or reconcile their dotfiles repo, or wants this run on a recurring schedule/loop (e.g. "sync my dotfiles", "push my claude-dotfiles changes", "keep claude-dotfiles in sync with origin"). Only the rebase-conflict case needs a human — everything else should be handled without asking.
+description: Sync the local claude-dotfiles git repo (~/github/claude-dotfiles, requires a WSL2 or Linux-like shell environment) with its GitHub origin — commit any uncommitted local changes, then push, pull, or rebase-and-push as needed to reconcile with origin, fully autonomously with no permission prompts for the git commands involved. Use this whenever the user asks to sync, push, pull, or reconcile their dotfiles repo, or wants this run on a recurring schedule/loop (e.g. "sync my dotfiles", "push my claude-dotfiles changes", "keep claude-dotfiles in sync with origin"). Only the rebase-conflict case needs a human — everything else should be handled without asking.
 ---
 
 # Sync claude-dotfiles with origin

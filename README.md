@@ -9,12 +9,17 @@ Dotfiles for [Claude Code](https://claude.ai/code) — restore your global plugi
 | `claude/CLAUDE.md` | Global behavioral instructions for Claude (applies to all sessions) |
 | `settings.json` | Global Claude Code settings: enabled plugins |
 | `claude/skills/` | Global skills, symlinked from `~/.claude/skills` — every skill you add there is version-controlled and synced automatically |
+| `claude/statusline/` | Statusline script and bash prompt integration, symlinked from `~/.claude/statusline-command.sh` and `~/.bashrc.d/claude-statusline.bash` |
+| `claude/agents/` | Global subagent definitions, symlinked from `~/.claude/agents` (optional — synced automatically once you create one) |
+| `claude/commands/` | Global slash commands, symlinked from `~/.claude/commands` (optional — synced automatically once you create one) |
+| `claude/keybindings.json` | Custom keybindings, symlinked from `~/.claude/keybindings.json` (optional — synced automatically once you create one) |
 | `settings.local.json.example` | Template for machine-specific permission allowlists |
 | `install.sh` | Automated setup script |
 
 ### Not included (intentionally)
 
 - `.credentials.json` — OAuth tokens; machine-specific and secret
+- `~/.claude.json` — account identity, OAuth account metadata (including your email address), machine ID, and per-project session telemetry; regenerated per machine, never sync it
 - `history.jsonl`, `sessions/`, `telemetry/`, `cache/`, `debug/` — ephemeral runtime data
 - `projects/` — per-project config lives in each repo's `.claude/` directory
 
@@ -88,10 +93,7 @@ chmod +x install.sh
 
 The script:
 - Checks that `~/.claude/` exists
-- Backs up any existing `settings.json` before overwriting
-- Symlinks `settings.json` to `~/.claude/settings.json`
-- Symlinks `CLAUDE.md` to `~/.claude/CLAUDE.md`
-- Backs up any existing `~/.claude/skills/` directory, then symlinks `claude/skills/` to `~/.claude/skills`
+- Backs up any existing file/directory before overwriting, then symlinks each of `settings.json`, `CLAUDE.md`, `skills/`, `agents/`, `commands/`, `keybindings.json`, and `statusline-command.sh` from `claude/` into `~/.claude/` — the optional ones (`agents/`, `commands/`, `keybindings.json`) are skipped silently if you haven't added them to the repo yet
 - Optionally copies `settings.local.json.example` as a starting point for `~/.claude/settings.local.json`
 
 ### Step 2: Register the karpathy-skills marketplace (in Claude Code)
@@ -168,7 +170,7 @@ The only case that needs a human is a genuine rebase conflict — the skill abor
 
 ### Scheduling an unattended daily sync (WSL2 + Windows Task Scheduler)
 
-On Windows/WSL2, there's no reliable way to run a cron job from *inside* WSL2 alone, since the WSL2 VM shuts down when idle. Instead, use Windows Task Scheduler to start WSL2 and run the sync directly — this both wakes the VM (if needed) and executes the job in one step.
+On Windows/WSL2, there's no reliable way to run a cron job from *inside* WSL2 alone, since the WSL2 VM shuts down when idle. Instead, use Windows Task Scheduler to start WSL2 and run the sync directly — this both wakes the VM (if needed) and executes the job in one step. On a native Linux or macOS machine, skip this section and use `cron` (`crontab -e`) or `launchd` instead to run the same `claude -p '/sync-dotfiles'` invocation on a schedule.
 
 **Prerequisite:** the git commands `/sync-dotfiles` runs (`fetch`, `status`, `add`, `commit`, `push`, `pull`, `rebase`) must be pre-approved in `~/.claude/settings.json`, since a headless run has no TTY to answer a permission prompt. This repo's `settings.json` already includes:
 
@@ -203,5 +205,6 @@ These things are managed separately and are not restored by this repo:
 - **Global CLAUDE.md** — Managed by this repo at `claude/CLAUDE.md`, symlinked to `~/.claude/CLAUDE.md`
 - **Per-project CLAUDE.md** — Lives in each project's own `.claude/CLAUDE.md`
 - **MCP servers** — Configured per-project in `.claude/settings.json` inside each repo
-- **Keybindings** — If you customize `~/.claude/keybindings.json`, add it to this repo manually (it contains no secrets)
+- **Keybindings** — Put `~/.claude/keybindings.json` at `claude/keybindings.json` in this repo and `install.sh` symlinks it automatically (it contains no secrets)
+- **Agents and commands** — Same as keybindings: add `claude/agents/` or `claude/commands/` in this repo and `install.sh` symlinks them to `~/.claude/agents` and `~/.claude/commands` automatically
 - **Hooks** — If you configure global hooks in `~/.claude/settings.json`, they will be included automatically once you add them there
